@@ -9,6 +9,11 @@ import { readChests, unload } from '../modules/chests.js'
 import { tellChest } from './tellChest.js'
 import { subdivideArea } from '../modules/utils.js'
 import { throwAll } from '../modules/inventory.js'
+import { setGoalToMaster } from '../modules/movement.js'
+import MinecraftData from 'minecraft-data'
+import { getCornerInputsUsingWands } from '../modules/inputs.js'
+import { Movements } from 'mineflayer-pathfinder'
+import { farmTree } from './tree.js'
 
 export const processCommand = function(bot:mineflayer.Bot, message:string){
   const args = message.split(" ")
@@ -44,6 +49,9 @@ export const processCommand = function(bot:mineflayer.Bot, message:string){
     case "report":
         reportInfo(bot)
       break
+    case "tree":
+        farmTree(bot,SETTINGS.woodType)
+      break
     case "summon":
       if(args[1] && args[2]){
         summonWorker(bot,parseInt(args[1]),parseInt(args[2]))
@@ -76,9 +84,9 @@ const reportInfo = async function(bot:mineflayer.Bot) {
 }
 
 const testCommand = async function(bot:mineflayer.Bot){
-  let [minCorners, maxCorners] = subdivideArea(v.default([0,4,0]),v.default([19,4,19]),16)
-
-  console.log(minCorners)
-  console.log(maxCorners)
+  const mcData = MinecraftData(bot.version)
+  //console.log(bot.inventory.count(mcData.itemsByName[SETTINGS.wandBlock].id,null))
+  bot.pathfinder.setMovements(new Movements(bot,mcData))
+  console.log(await getCornerInputsUsingWands(bot))
 }
 
