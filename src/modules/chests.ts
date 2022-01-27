@@ -5,7 +5,7 @@ import {Window} from 'prismarine-windows'
 import {Item} from 'prismarine-item'
 import * as v from 'vec3'
 import MinecraftData from 'minecraft-data'
-import { ItemListFilterIterator } from './utils.js'
+import { ItemListFilterIterator, sleep } from './utils.js'
 
 const { goals, Movements, pathfinder } = mcPathsFinder
 
@@ -14,14 +14,9 @@ export class ChestsManager{
 
   constructor(_chestPosList:v.Vec3[]){
     this.chestPosList = _chestPosList
-    
   }
 
   private async readAllChests(bot:mineflayer.Bot): Promise<Item[][]>{
-    const mcData = minecraftData(bot.version)
-    const movement = new Movements(bot, mcData)
-    bot.pathfinder.setMovements(movement)
-
     let totalItemList:Item[][] = []
 
     for(let i = 0; i < this.chestPosList.length;i++){
@@ -96,6 +91,7 @@ export class ChestsManager{
     return itemCounts
   }
   private async getItems(bot:mineflayer.Bot,chestIndex:number,itemsToGet:Item[]|string[]|null): Promise<number> {
+    const mcData = MinecraftData(bot.version)
     let filter:string[] = []
     if(itemsToGet){
       if(typeof(itemsToGet) === typeof(filter)){
@@ -109,10 +105,6 @@ export class ChestsManager{
       return 0
     }
 
-    const mcData = minecraftData(bot.version)
-    const movement = new Movements(bot, mcData)
-    bot.pathfinder.setMovements(movement)
-
     let pos = this.chestPosList[chestIndex]
     try {
       await bot.pathfinder.goto(new goals.GoalGetToBlock(pos.x,pos.y,pos.z))
@@ -120,7 +112,6 @@ export class ChestsManager{
       console.log("goto had error in getItem")
       return 0
     }
-
 
     let chestToOpen = bot.blockAt(pos)
     if(!chestToOpen){
@@ -205,6 +196,72 @@ export class ChestsManager{
     console.log("depositeAll: " + depositSuccess)
     return depositSuccess
   }
+  public async fillOneStack(bot:mineflayer.Bot,itemsToGet:string[]):Promise<boolean>{
+    if (itemsToGet.length < 1){
+      return true
+    }
+    // get current item count
+    const mcData = MinecraftData(bot.version)
+    let currentCounts:number[] = []
+    let filterItems:MinecraftData.Item[] = []
+    let allFilledStack = true
+    for(let i = 0; i < itemsToGet.length;i++){
+      let itemEntry = mcData.itemsByName[itemsToGet[i]]
+      if(itemEntry){
+        filterItems.push(itemEntry)
+        let count = bot.inventory.count(itemEntry.id,null)
+        currentCounts.push(count)
+        allFilledStack = allFilledStack && count >= itemEntry.stackSize
+      }
+    }
+
+    // fill if not enough
+    let chestIndex = 0
+    while(chestIndex < this.chestPosList.length && !allFilledStack){
+      allFilledStack = true
+      for(let i = 0; i < filterItems.length; i++){
+        if(currentCounts[i] < filterItems[i].stackSize){
+          let pos = this.chestPosList[chestIndex]
+          // check and get Block
+          let chestToOpen = bot.blockAt(pos)
+          if(!chestToOpen){
+            console.log("Chest Not found in fillOneStack")    
+            allFilledStack = false
+            continue
+          }
+          // goto block
+          try {
+            await bot.pathfinder.goto(new goals.GoalGetToBlock(pos.x,pos.y,pos.z))
+          } catch {
+            console.log("goto had error in fillOneStack")
+            allFilledStack = false
+            continue
+          }
+          // open block as Chest
+          let chestInstance = await bot.openChest(chestToOpen)
+          let chestWindow = chestInstance as unknown as Window
+
+          try{
+            await chestInstance.withdraw(filterItems[i].id,null,filterItems[i].stackSize - currentCounts[i])
+          } catch {
+            allFilledStack = false
+            console.log("Error getting Items["+ filterItems[i].name +"] in fillOneStack")
+          }
+
+          chestInstance.close()
+          sleep(500)// account for server lag
+          // update count
+          currentCounts[i] = bot.inventory.count(filterItems[i].id,null)
+        }
+        if(allFilledStack){
+          allFilledStack = allFilledStack && currentCounts[i] >= filterItems[i].stackSize
+        }
+      }
+      chestIndex++
+    }
+
+    return allFilledStack
+  }
 }
 
 export const unload = async function(bot:mineflayer.Bot, destination:v.Vec3, whitelist:Item[]|string[]|null,chestType:string = 'chest'): Promise<boolean>{
@@ -219,10 +276,6 @@ export const unload = async function(bot:mineflayer.Bot, destination:v.Vec3, whi
     }
   }
   //console.log(filter)
-
-  const mcData = minecraftData(bot.version)
-  const movement = new Movements(bot, mcData)
-  bot.pathfinder.setMovements(movement)
 
   try{
     await bot.pathfinder.goto(new goals.GoalGetToBlock(destination.x,destination.y,destination.z))
@@ -267,9 +320,6 @@ export const unload = async function(bot:mineflayer.Bot, destination:v.Vec3, whi
   return success
 }
 export const readChest = async function(bot:mineflayer.Bot, destination:v.Vec3, chestType:string = 'chest'):Promise<Item[]>{
-  const mcData = minecraftData(bot.version)
-  const movement = new Movements(bot, mcData)
-  bot.pathfinder.setMovements(movement)
   
   try {
     await bot.pathfinder.goto(new goals.GoalGetToBlock(destination.x,destination.y,destination.z))
