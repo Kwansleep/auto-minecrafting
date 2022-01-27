@@ -7,16 +7,16 @@ const _toolsShov:string = _prefix +'_shovel'
 export const SETTINGS = {
 
   serverIP:  'localhost',
-  serverPort: 59846, 
-  tpa:false,
+  serverPort: 57513, 
+  tpa: false,
 
   botName: "not_a_bot",
   interfaceBotName: "interfaceBot",
   masterName: "userPlayerName",
-  wandBlock: "Lightning Rod",
+  wandBlock: "lightning_rod",
   toolsPick: _toolsPick,
-  toolsShov: _toolsAxe,
-  toolsAxe: _toolsShov,
+  toolsShov: _toolsShov,
+  toolsAxe: _toolsAxe,
   toolsFilter: [
     _toolsPick,
     _toolsAxe,
@@ -25,6 +25,12 @@ export const SETTINGS = {
   collectActionThreashold: 100,
   minEmtpySlotsDuringWork: 2,
   errorRetries:3,
+  woodType: "oak",
+  foodName: "cooked_porkchop",
+  scaffoldBlock: [
+    "dirt",
+    "grass_block"
+  ],
 }
 
 
