@@ -37,21 +37,21 @@ Example launch.json
 Example task.json
 ```
 {
-	"version": "2.0.0",
-	"tasks": [
-		{
-			"type": "typescript",
-			"tsconfig": "tsconfig.json",
-			"option": "watch",
-			"problemMatcher": [
-				"$tsc-watch"
-			],
-			"group": {
-				"kind": "build",
-				"isDefault": true
-			},
-			"label": "tsc: watch - tsconfig.json"
-		}
-	]
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "typescript",
+      "tsconfig": "tsconfig.json",
+      "option": "watch",
+      "problemMatcher": [
+	"$tsc-watch"
+      ],
+      "group": {
+	"kind": "build",
+	"isDefault": true
+      },
+      "label": "tsc: watch - tsconfig.json"
+    }
+  ]
 }
 ```
