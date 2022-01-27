@@ -14,7 +14,7 @@ import { SETTINGS } from '../settings.js'
 import { ChestsManager } from '../modules/chests.js'
 import { collectItems } from '../modules/items.js'
 import { lookAtMaster } from '../modules/look.js'
-import { goToMaster } from '../modules/movement.js'
+import { setGoalToMaster } from '../modules/movement.js'
 import { SimpleIterator, subdivideArea } from '../modules/utils.js'
 import { reportOutofSpaceAndIdle } from '../modules/inventory.js'
 
@@ -22,7 +22,7 @@ export const areaDig = async function(bot:mineflayer.Bot){
 
   bot.removeAllListeners('physicsTick')
   bot.on("physicsTick",lookAtMaster)
-  goToMaster(bot,4)
+  setGoalToMaster(bot,4)
 
   let firstPos:v.Vec3|null = null
   let secondPos:v.Vec3|null = null
@@ -102,7 +102,7 @@ export const areaDig = async function(bot:mineflayer.Bot){
 
   while(!barrier){
     await new Promise(r => setTimeout(r, 2000)); // sleep
-    goToMaster(bot,4)
+    setGoalToMaster(bot,4)
     //console.log("woke and checked")
   }
 

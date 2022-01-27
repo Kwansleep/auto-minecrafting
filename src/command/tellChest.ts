@@ -7,13 +7,13 @@ const { goals, Movements, pathfinder } = mcPathsFinder
 // local modules
 import { SETTINGS } from '../settings.js'
 import { lookAtMaster } from '../modules/look.js'
-import { goToMaster } from '../modules/movement.js'
+import { setGoalToMaster } from '../modules/movement.js'
 
 export const tellChest = async function(bot:mineflayer.Bot){
   let finsh = false
   bot.removeAllListeners('physicsTick')
   bot.on("physicsTick",lookAtMaster)
-  goToMaster(bot,4)  
+  setGoalToMaster(bot,4)  
 
   async function lookForChest(primaryChest:Block,isOpen:number){
     if(isOpen == 1){

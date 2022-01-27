@@ -6,19 +6,28 @@ const { goals, Movements, pathfinder } = mcPathsFinder
 // local modules
 import { SETTINGS } from '../settings.js'
 import { ReachEntity } from '../goal/customGoals.js'
+import MinecraftData from 'minecraft-data'
 
-export const goToMaster = function(bot:mineflayer.Bot,reach:number){
-  const playerMaster = bot.players[SETTINGS.masterName]
-  if(!playerMaster){
-    console.log("Master not found")
-    return
+export const setGoalToMaster = function(_bot:mineflayer.Bot,_reach:number){
+  setGoalToPlayer(_bot,SETTINGS.masterName,_reach)
+}
+
+export const setGoalToPlayer = function(_bot:mineflayer.Bot,_playerName:string,_reach:number): boolean{
+  const player = _bot.players[_playerName]
+  if(!player){
+    return false
   }
-  //console.log(bot.version)
-  const mcData = minecraftData(bot.version)
-  const movement = new Movements(bot, mcData)
+  const goal = new ReachEntity(player.entity,_reach)
+  _bot.pathfinder.setGoal(goal)
+  return true
+}
 
-  bot.pathfinder.setMovements(movement)
+export const setDefaultMovement = function(_bot:mineflayer.Bot){
+  const mcData = MinecraftData(_bot.version)
+  let moves = new Movements(_bot,mcData)
 
-  const goal = new ReachEntity(playerMaster.entity,reach)
-  bot.pathfinder.setGoal(goal) // true, for continuous follow
+  moves.blocksCantBreak.add(mcData.blocksByName['glass'].id)
+  moves.blocksCantBreak.add(mcData.blocksByName['barrel'].id)
+
+  _bot.pathfinder.setMovements(moves)
 }
