@@ -1,0 +1,32 @@
+{
+  "dependencies": {
+    "minecraft-data": "^2.110.0",
+    "mineflayer": "^3.15.0",
+    "mineflayer-auto-eat": "^2.3.3",
+    "mineflayer-pathfinder": "^1.9.1",
+    "mineflayer-web-inventory": "^1.6.3",
+    "prismarine-block": "^1.12.0",
+    "prismarine-entity": "^2.0.0",
+    "prismarine-item": "^1.11.2",
+    "prismarine-windows": "^2.4.3",
+    "prismarine-world": "^3.6.0",
+    "vec3": "^0.1.7",
+    "yarn": "^1.22.17"
+  },
+  "name": "pbuild",
+  "version": "1.0.0",
+  "description": "parallel build using mineflayer",
+  "main": "pbuild.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node ./dist/pbuild.js",
+    "prestart": "yarn run build"
+  },
+  "author": "me",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^17.0.10",
+    "typescript": "^4.5.5"
+  },
+  "type": "module"
+}
