@@ -6,10 +6,14 @@ import autoEat from "mineflayer-auto-eat"
 import iv from 'mineflayer-web-inventory'
 import MinecraftData from 'minecraft-data'
 const { pathfinder } = mcPathsFinder
+import armorManager from 'mineflayer-armor-manager'
 // local modules
 import { SETTINGS } from './settings.js'
 import { processCommand } from './command/commands.js'
 import { chatIsWhisperFromMaster } from './modules/chats.js'
+import { enableEating } from './modules/items.js'
+import { setDefaultMovement } from './modules/movement.js'
+const mcData = MinecraftData('1.18')
 
 const main = function(){
 
@@ -24,8 +28,13 @@ const main = function(){
 
   interfaceBot.on('spawn',()=>{
     console.log("spawned")
+    // @ts-ignore
+    interfaceBot.autoEat.disable()
+    setDefaultMovement(interfaceBot)
   })
   interfaceBot.loadPlugin(autoEat)
+  interfaceBot.loadPlugin(armorManager)
+
 
   interfaceBot.on('chat', (username:string, message:string, translate, chatMsg, matches) => {
     console.log("["+username + "]: " + message)
