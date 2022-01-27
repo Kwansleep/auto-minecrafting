@@ -18,14 +18,14 @@ export class SimpleIterator implements IIterator {
   private yMin:number
 
   // all inputs are inclusive
-  constructor(_xMin:number,_xMax:number,_zMin:number,_zMax:number,_yMin:number){
+  constructor(_xMin:number,_xMax:number,_zMin:number,_zMax:number,_yMin:number,_yMax:number = 320){
     this.xMin = _xMin
     this.xMax = _xMax
     this.zMin = _zMin
     this.zMax = _zMax
     this.yMin = _yMin
 
-    this.currY = 385
+    this.currY = _yMax
     this.currX = this.xMax
     this.currZ = this.zMax
   }
@@ -141,4 +141,24 @@ export const subdivideArea = function(_minCorner:v.Vec3,_maxCorner:v.Vec3,desire
 
 export function getChunkFromPos(scalar:number){
   return Math.floor(scalar / 16)
+}
+
+export function posWithinXZ(position:v.Vec3, minCorner:v.Vec3 ,maxCorner:v.Vec3):boolean{
+  if(position.x < minCorner.x){
+    return false
+  }
+  if(position.z < minCorner.z){
+    return false
+  }
+  if(position.x > maxCorner.x){
+    return false
+  }
+  if(position.z > maxCorner.z){
+    return false
+  }
+  return true
+}
+
+export async function sleep(time:number = 2000){
+  await new Promise(r => setTimeout(r, time)); // sleep
 }
